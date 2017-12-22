@@ -25,6 +25,7 @@ import math
 from array import *
 from .utils import _dataConvertion
 from .utils import _regsExample
+from .utils import is_hex
 from .regs import *
 
 
@@ -33,7 +34,7 @@ class Magum:
     Return a new Magum object that is (optionally) 
     automatically initialized with the default values. 
     """
-    _i2cBus = smbus2.SMBus(2)  # open communication to I2C channel 4
+    _i2cBus = smbus2.SMBus(2)  # open communication to I2C channel 2
     _calibrated = False  # check calibration
     accScale = None
     gyrScale = None
@@ -110,15 +111,15 @@ class Magum:
         elif scaleRange == 250:
             self.setSensConf('g', 'G_CTRL_REG0', 0x03)  # set range to +/- 250dps (500dps if CTRL_REG3 is set to double)
         elif scaleRange == None:
-            self._i2cBus.write_byte_data(I2C_G_ADDRESS, A_CTRL_REG1, 0x16)  # set to active mode
+            self._i2cBus.write_byte_data(I2C_G_ADDRESS, G_CTRL_REG1, 0x16)  # set to active mode 25Hz
             time.sleep(.300)  # sleep 300 ms
         else:
-            print 'Error: incorrect gScalRange value, read the documentation for the corret config.'
+            print 'Error: incorrect gScalRange value, read the documentation for the correct config.'
             sys.exit(1)
 
         self.gyrScale = scaleRange
 
-        self._i2cBus.write_byte_data(I2C_G_ADDRESS, G_CTRL_REG1, 0x16)  # set to active mode
+        self._i2cBus.write_byte_data(I2C_G_ADDRESS, G_CTRL_REG1, 0x16)  # set to active mode 25Hz
         time.sleep(.300)  # sleep 300ms
 
     def toStandby(self, sensor):
@@ -294,14 +295,14 @@ class Magum:
             else:
                 _regsExample('a')
         if sensor == 'm':
-            if reg in M_CREGS_LIST:
+            if reg in M_CREG_LIST:
                 if bool(is_hex(str(hexVal))):
                     self._i2cBus.write_byte_data(I2C_AM_ADDRESS, COMPLETE_REGS_DICT[reg], hexVal)
             else:
                 _regsExample('m')
         if sensor == 'g':
             if reg in G_CREG_LIST:
-                self._i2cBus.write_byte_data(I2C_AM_ADDRESS, COMPLETE_REGS_DICT[reg], hexVal)
+                self._i2cBus.write_byte_data(I2C_G_ADDRESS, COMPLETE_REGS_DICT[reg], hexVal)
             else:
                 _regsExample('g')
         time.sleep(.300)  # sleep 300ms

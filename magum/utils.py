@@ -9,6 +9,7 @@ import os
 import shlex
 import subprocess
 import math
+import string
 from .regs import *
 
 
@@ -21,12 +22,12 @@ def _regsExample(sensor):
         sys.exit(1)
     if sensor == 'm':
         print "Error: wrong register supplied to setSensConf(sensor,reg,hexVal).\nUse one from the list instead:\n"
-        for index, value in enumerate(M_CREGS_LIST):
+        for index, value in enumerate(M_CREG_LIST):
             print value
         sys.exit(1)
     if sensor == 'g':
         print "Error: wrong register supplied to setSensConf(sensor,reg,hexVal).\nUse one from the list instead:\n"
-        for index, value in enumerate(G_CREGS_LIST):
+        for index, value in enumerate(G_CREG_LIST):
             print value
         sys.exit(1)
 
@@ -160,3 +161,10 @@ def _dataConvertion(Object, sensor, axisList, uM=None):
     else:
         print "Error: Incorrect parameters supplied to method _dataConvertion(Object,sensor,axisList,uM=None)"
         sys.exit(1)
+
+def is_hex(s):
+    try:
+        int(s, 16)
+        return True
+    except ValueError:
+        return False
