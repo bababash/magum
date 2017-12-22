@@ -1,5 +1,5 @@
 var config1 = liquidFillGaugeDefaultSettings();
-var config2 = liquidFillGaugeDefaultSettings()
+var config2 = liquidFillGaugeDefaultSettings();
 config2.minValue = 0;
 config2.maxValue = 40;
 config2.circleColor = "#178BCA";
@@ -11,8 +11,8 @@ config2.textVertPosition = 0.2;
 config2.waveAnimateTime = 1000;
 config2.minus = true;
 
-config1.minValue = 0
-config1.maxValue = 100
+config1.minValue = 0;
+config1.maxValue = 100;
 config1.circleColor = "#FF7777";
 config1.textColor = "#FF6666";
 config1.waveTextColor = "#FF9999";

@@ -60,4 +60,4 @@ var updateChart = function () {
 	// update chart after specified interval
 	setInterval(function(){updateChart()}, updateInterval);
 }
-}
+};
