@@ -2,7 +2,7 @@
 
 from __future__ import division
 from array import *
-import smbus
+import smbus2
 import time
 import sys
 import os

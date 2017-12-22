@@ -13,7 +13,7 @@ users of this module usually MUST have ROOT permissions.
 """
 
 # including necessary modules
-import smbus
+import smbus2
 import time
 import sys
 import os
@@ -33,7 +33,7 @@ class Magum:
     Return a new Magum object that is (optionally) 
     automatically initialized with the default values. 
     """
-    _i2cBus = smbus.SMBus(2)  # open communication to I2C channel 4
+    _i2cBus = smbus2.SMBus(2)  # open communication to I2C channel 4
     _calibrated = False  # check calibration
     accScale = None
     gyrScale = None
