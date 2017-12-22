@@ -57,7 +57,7 @@ class Magum:
         self.toStandby('a')
 
         if noise == 1 and scaleRange in (2, 4):
-            regNoise = 0x0c
+            regNoise = 0x04  # 0b100
         elif noise in (0, None):
             regNoise = 0x00
         else:
@@ -71,7 +71,8 @@ class Magum:
         elif scaleRange == 8:
             self.setSensConf('a', 'A_XYZ_DATA_CFG', 0x02)  # set range to +/- 8g
         elif scaleRange == None:
-            self._i2cBus.write_byte_data(I2C_AM_ADDRESS, A_CTRL_REG1, 0x01)  # set to active mode
+            self._i2cBus.write_byte_data(I2C_AM_ADDRESS, A_CTRL_REG1, 0x21 | regNoise)  # set to active mode,
+            # keep scaleRange at previous value, frequency = 25 Hz (same as accelerometer) in hybrid mode.
             time.sleep(.300)  # sleep 300 ms
         else:
             print 'Error: incorrect aScalRange value, read the documentation for the correct config.'
@@ -79,11 +80,13 @@ class Magum:
 
         self.accScale = scaleRange
 
-        self._i2cBus.write_byte_data(I2C_AM_ADDRESS, A_CTRL_REG1, 0x01 | regNoise)  # set to active mode
+        self._i2cBus.write_byte_data(I2C_AM_ADDRESS, A_CTRL_REG1,
+                                     0x21 | regNoise)  # set to active mode, frequency = 25 Hz (same as
+        # accelerometer) in hybrid mode.
         time.sleep(.300)  # sleep 300 ms
 
         self._i2cBus.write_byte_data(I2C_AM_ADDRESS, M_CTRL_REG1,
-                                     0x03)  # enable both accelerometer and magnetometer sensors
+                                     0x03)  # enable both accelerometer and magnetometer sensors (hybrid mode)
 
     # gyroscope initialization
     def _initG(self, scaleRange=None, fsDouble=None):
@@ -138,7 +141,7 @@ class Magum:
     def toActive(self, sensor):
         if sensor in ('a', 'm'):
             currReg = self._i2cBus.read_byte_data(I2C_AM_ADDRESS, A_CTRL_REG1)  # get current configuration
-            self._i2cBus.write_byte_data(I2C_AM_ADDRESS, A_CTRL_REG1, currReg)  # set to active_mode
+            self._i2cBus.write_byte_data(I2C_AM_ADDRESS, A_CTRL_REG1, currReg + 1)  # set to active_mode
         if sensor in ('g'):
             currReg = self._i2cBus.read_byte_data(I2C_G_ADDRESS, G_CTRL_REG1)  # get old configuration
             currReg = currReg >> 2
@@ -176,7 +179,7 @@ class Magum:
                 os.system('modprobe fxos8700')
         else:
             print "Error: wrong killDrivers(x) parameter.\n self.killDrivers(0): enable drivers \n killDrivers(1): " \
-				  "disable drivers."
+                  "disable drivers."
             sys.exit(1)
 
     # sensor calibration
@@ -418,7 +421,7 @@ class Magum:
         exTime = 0.013  # execution time
         if DT < exTime:
             print "Error: DT is too small to sample the accelerometer and gyroscope data.\nDT must be greater than " \
-				  "0.013."
+                  "0.013."
             sys.exit(1)
         else:
             if self._calibrated == True:
@@ -494,7 +497,7 @@ class Magum:
 
             else:
                 print "Error: failed calibration.\nMake sure to calibrate the sensors using calibrateSens(sensor," \
-					  "samples)"
+                      "samples)"
                 sys.exit(1)
 
     # Kalman Filter
@@ -504,7 +507,7 @@ class Magum:
         exTime = 0.012  # execution time
         if DT < exTime:
             print "Error: DT is too small to sample the accelerometer and gyroscope data.\nDT must be greater than " \
-				  "0.015."
+                  "0.015."
             sys.exit(1)
         else:
             if self._calibrated == True:
@@ -585,7 +588,7 @@ class Magum:
 
             else:
                 print "Error: failed calibration.\nMake sure to calibrate the sensors using calibrateSens(sensor," \
-					  "samples)"
+                      "samples)"
                 sys.exit(1)
 
     # Implementation of Sebastian Madgwick's "...efficient orientation filter for... inertial/magnetic sensor arrays"
@@ -686,28 +689,34 @@ class Magum:
 
         # Gradient decent algorithm corrective step
         s1 = -_2q3 * (2.0 * q2q4 - _2q1q3 - ax) + _2q2 * (2.0 * q1q2 + _2q3q4 - ay) - _2bz * q3 * (
-        _2bx * (0.5 - q3q3 - q4q4) + _2bz * (q2q4 - q1q3) - mx) + (-_2bx * q4 + _2bz * q2) * (
-        _2bx * (q2q3 - q1q4) + _2bz * (q1q2 + q3q4) - my) + _2bx * q3 * (
-        _2bx * (q1q3 + q2q4) + _2bz * (0.5 - q2q2 - q3q3) - mz)
+            _2bx * (0.5 - q3q3 - q4q4) + _2bz * (q2q4 - q1q3) - mx) + (-_2bx * q4 + _2bz * q2) * (
+            _2bx * (q2q3 - q1q4) + _2bz * (q1q2 + q3q4) - my) + _2bx * q3 * (
+            _2bx * (q1q3 + q2q4) + _2bz * (0.5 - q2q2 - q3q3) - mz)
         s2 = _2q4 * (2.0 * q2q4 - _2q1q3 - ax) + _2q1 * (2.0 * q1q2 + _2q3q4 - ay) - 4.0 * q2 * (
-        1.0 - 2.0 * q2q2 - 2.0 * q3q3 - az) + _2bz * q4 * (_2bx * (0.5 - q3q3 - q4q4) + _2bz * (q2q4 - q1q3) - mx) + (
-                                                                                                                     _2bx * q3 + _2bz * q1) * (
-                                                                                                                     _2bx * (
-                                                                                                                     q2q3 - q1q4) + _2bz * (
-                                                                                                                     q1q2 + q3q4) - my) + (
-                                                                                                                                          _2bx * q4 - _4bz * q2) * (
-                                                                                                                                          _2bx * (
-                                                                                                                                          q1q3 + q2q4) + _2bz * (
-                                                                                                                                          0.5 - q2q2 - q3q3) - mz)
+            1.0 - 2.0 * q2q2 - 2.0 * q3q3 - az) + _2bz * q4 * (
+            _2bx * (0.5 - q3q3 - q4q4) + _2bz * (q2q4 - q1q3) - mx) + (
+                                                                          _2bx * q3 + _2bz * q1) * (
+                                                                          _2bx * (
+                                                                              q2q3 - q1q4) + _2bz * (
+                                                                              q1q2 + q3q4) - my) + (
+                                                                                                       _2bx * q4 -
+                                                                                                       _4bz *
+                                                                                                       q2) * (
+                                                                                                       _2bx * (
+                                                                                                           q1q3 +
+                                                                                                           q2q4) +
+                                                                                                       _2bz * (
+                                                                                                           0.5 - q2q2 -
+                                                                                                           q3q3) - mz)
         s3 = -_2q1 * (2.0 * q2q4 - _2q1q3 - ax) + _2q4 * (2.0 * q1q2 + _2q3q4 - ay) - 4.0 * q3 * (
-        1.0 - 2.0 * q2q2 - 2.0 * q3q3 - az) + (-_4bx * q3 - _2bz * q1) * (
-        _2bx * (0.5 - q3q3 - q4q4) + _2bz * (q2q4 - q1q3) - mx) + (_2bx * q2 + _2bz * q4) * (
-        _2bx * (q2q3 - q1q4) + _2bz * (q1q2 + q3q4) - my) + (_2bx * q1 - _4bz * q3) * (
-        _2bx * (q1q3 + q2q4) + _2bz * (0.5 - q2q2 - q3q3) - mz)
+            1.0 - 2.0 * q2q2 - 2.0 * q3q3 - az) + (-_4bx * q3 - _2bz * q1) * (
+            _2bx * (0.5 - q3q3 - q4q4) + _2bz * (q2q4 - q1q3) - mx) + (_2bx * q2 + _2bz * q4) * (
+            _2bx * (q2q3 - q1q4) + _2bz * (q1q2 + q3q4) - my) + (_2bx * q1 - _4bz * q3) * (
+            _2bx * (q1q3 + q2q4) + _2bz * (0.5 - q2q2 - q3q3) - mz)
         s4 = _2q2 * (2.0 * q2q4 - _2q1q3 - ax) + _2q3 * (2.0 * q1q2 + _2q3q4 - ay) + (-_4bx * q4 + _2bz * q2) * (
-        _2bx * (0.5 - q3q3 - q4q4) + _2bz * (q2q4 - q1q3) - mx) + (-_2bx * q1 + _2bz * q3) * (
-        _2bx * (q2q3 - q1q4) + _2bz * (q1q2 + q3q4) - my) + _2bx * q2 * (
-        _2bx * (q1q3 + q2q4) + _2bz * (0.5 - q2q2 - q3q3) - mz)
+            _2bx * (0.5 - q3q3 - q4q4) + _2bz * (q2q4 - q1q3) - mx) + (-_2bx * q1 + _2bz * q3) * (
+            _2bx * (q2q3 - q1q4) + _2bz * (q1q2 + q3q4) - my) + _2bx * q2 * (
+            _2bx * (q1q3 + q2q4) + _2bz * (0.5 - q2q2 - q3q3) - mz)
         norm = math.sqrt(s1 * s1 + s2 * s2 + s3 * s3 + s4 * s4)  # normalize step magnitude
         norm = 1.0 / norm
         s1 *= norm
