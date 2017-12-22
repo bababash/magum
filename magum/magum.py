@@ -33,7 +33,7 @@ class Magum:
     Return a new Magum object that is (optionally) 
     automatically initialized with the default values. 
     """
-    _i2cBus = smbus.SMBus(3)  # open communication to I2C channel 4
+    _i2cBus = smbus.SMBus(2)  # open communication to I2C channel 4
     _calibrated = False  # check calibration
     accScale = None
     gyrScale = None
