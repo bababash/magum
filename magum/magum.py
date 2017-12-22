@@ -1,5 +1,5 @@
-# !/usr/bin/python
 # -*- coding: utf-8 -*-
+# !/usr/bin/python
 """
 MAGUM python module (Beta 1.1.0)
 

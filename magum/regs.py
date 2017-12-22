@@ -1,5 +1,5 @@
-"""This file contains all the registers used by fxos8700cq and fxas2100c"""
 # -*- coding: utf-8 -*-
+"""This file contains all the registers used by fxos8700cq and fxas2100c"""
 
 I2C_AM_ADDRESS = 0x1e  # I2C accelerometer/magnetometer address
 I2C_G_ADDRESS = 0x20  # I2C gyroscope address
