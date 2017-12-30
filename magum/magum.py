@@ -21,6 +21,7 @@ import shlex
 import subprocess
 import re
 import math
+import numpy as np
 
 from array import *
 from .utils import _dataConvertion
@@ -312,8 +313,7 @@ class Magum:
         self.toActive(sensor)
 
     # read accelerometer data
-    def readAData(self, uM=None):
-        axisList = array('f', [])
+    def readAData(self, axisOffset, uM=None):
 
         # getting x,y,z coordinate shifting first 8bit and adding
         # (with the or operator) the others 8 bit to the address
@@ -332,17 +332,18 @@ class Magum:
 
         zRaw = (zMsbRaw << 8 | zLsbRaw)  # z axis
 
-        axisList.insert(0, xRaw)
-        axisList.insert(1, yRaw)
-        axisList.insert(2, zRaw)
+        axisList = np.array([xRaw, yRaw, zRaw], np.float)
+
+        if axisOffset:
+            axisOffset = np.array(axisOffset[0:3], np.float)
+            axisList = axisList - axisOffset
 
         axisList = _dataConvertion(self._i2cBus, "a", axisList, uM)
 
         return axisList
 
     # read magnetometer data
-    def readMData(self, uM=None):
-        axisList = array('f', [])
+    def readMData(self, axisOffset, uM=None):
 
         # getting x,y,z coordinate shifting first 8bit and adding
         # (with the or operator) the others 8 bit to the address
@@ -361,17 +362,19 @@ class Magum:
 
         zRaw = zMsbRaw << 8 | zLsbRaw  # z axis
 
-        axisList.insert(0, xRaw)
-        axisList.insert(1, yRaw)
-        axisList.insert(2, zRaw)
+        axisList = np.array([xRaw, yRaw, zRaw], np.float)
+
+        if axisOffset:
+            axisOffset = np.array(axisOffset[0:3], np.float)
+            axisList = axisList - axisOffset
 
         axisList = _dataConvertion(self._i2cBus, 'm', axisList, uM)
 
         return axisList
 
     # read gyroscope data
-    def readGData(self, uM=None):
-        axisList = array('f', [])
+    def readGData(self, axisOffset, uM=None):
+
         # getting x,y,z coordinate shifting first 8bit and adding
         # (with the or operator) the others 8 bit to the address
         xMsbRaw = self._i2cBus.read_byte_data(I2C_G_ADDRESS, G_OUT_X_MSB)
@@ -389,9 +392,11 @@ class Magum:
 
         zRaw = zMsbRaw << 8 | zLsbRaw  # z axis
 
-        axisList.insert(0, xRaw)
-        axisList.insert(1, yRaw)
-        axisList.insert(2, zRaw)
+        axisList = np.array([xRaw, yRaw, zRaw], np.float)
+
+        if axisOffset:
+            axisOffset = np.array(axisOffset[0:3], np.float)
+            axisList = axisList - axisOffset
 
         axisList = _dataConvertion(self._i2cBus, "g", axisList, uM)
 
