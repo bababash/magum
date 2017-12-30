@@ -313,7 +313,7 @@ class Magum:
         self.toActive(sensor)
 
     # read accelerometer data
-    def readAData(self, axisOffset, uM=None):
+    def readAData(self, axisOffset=False, uM=None):
 
         # getting x,y,z coordinate shifting first 8bit and adding
         # (with the or operator) the others 8 bit to the address
@@ -343,7 +343,8 @@ class Magum:
         return axisList
 
     # read magnetometer data
-    def readMData(self, axisOffset, uM=None):
+    def readMData(self, uM=None):
+        axisList = array('f', [])
 
         # getting x,y,z coordinate shifting first 8bit and adding
         # (with the or operator) the others 8 bit to the address
@@ -362,18 +363,16 @@ class Magum:
 
         zRaw = zMsbRaw << 8 | zLsbRaw  # z axis
 
-        axisList = np.array([xRaw, yRaw, zRaw], np.float)
-
-        if axisOffset:
-            axisOffset = np.array(axisOffset[0:3], np.float)
-            axisList = axisList - axisOffset
+        axisList.insert(0, xRaw)
+        axisList.insert(1, yRaw)
+        axisList.insert(2, zRaw)
 
         axisList = _dataConvertion(self._i2cBus, 'm', axisList, uM)
 
         return axisList
 
     # read gyroscope data
-    def readGData(self, axisOffset, uM=None):
+    def readGData(self, axisOffset=False, uM=None):
 
         # getting x,y,z coordinate shifting first 8bit and adding
         # (with the or operator) the others 8 bit to the address
@@ -395,7 +394,7 @@ class Magum:
         axisList = np.array([xRaw, yRaw, zRaw], np.float)
 
         if axisOffset:
-            axisOffset = np.array(axisOffset[0:3], np.float)
+            axisOffset = np.array(axisOffset[3:6], np.float)
             axisList = axisList - axisOffset
 
         axisList = _dataConvertion(self._i2cBus, "g", axisList, uM)
