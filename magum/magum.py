@@ -421,7 +421,7 @@ class Magum:
             return tempFahr
 
     # complementary filter algorithm
-    def compFilter(self, DT, axisOffset):
+    def compFilter(self, DT, axisOffset, uM=None):
         exTime = 0.013  # execution time
         if DT < exTime:
             print "Error: DT is too small to sample the accelerometer and gyroscope data.\nDT must be greater than " \
@@ -487,13 +487,19 @@ class Magum:
                     self._cFAngleY = (highPass) * (self._cFAngleY + gyrYangle * DT) + (1 - highPass) * (accYangle)
                     self._cFAngleZ = (highPass) * (self._cFAngleZ + gyrZangle * DT) + (1 - highPass) * (accZangle)
 
-                cFAngleAxis.insert(0, self._cFAngleX)
-                cFAngleAxis.insert(1, self._cFAngleY * (-1))
-                cFAngleAxis.insert(2, self._cFAngleZ * (-1))
+                if uM == ('rad'):
+                    cFAngleAxis.insert(0, self._cFAngleX * (math.pi / 180))
+                    cFAngleAxis.insert(1, self._cFAngleY * (-1) * (math.pi / 180))
+                    cFAngleAxis.insert(2, self._cFAngleZ * (-1) * (math.pi / 180))
 
-                gyrXangle = float((rate_gyr[0] - axisOffset[3]) * gFactor)
-                gyrYangle = float((rate_gyr[1] - axisOffset[4]) * gFactor)
-                gyrZangle = float((rate_gyr[2] - axisOffset[5]) * gFactor)
+                else: #degrees
+                    cFAngleAxis.insert(0, self._cFAngleX)
+                    cFAngleAxis.insert(1, self._cFAngleY * (-1))
+                    cFAngleAxis.insert(2, self._cFAngleZ * (-1))
+
+                # gyrXangle = float((rate_gyr[0] - axisOffset[3]) * gFactor)
+                # gyrYangle = float((rate_gyr[1] - axisOffset[4]) * gFactor)
+                # gyrZangle = float((rate_gyr[2] - axisOffset[5]) * gFactor)
 
                 time.sleep(DT - exTime)
 
