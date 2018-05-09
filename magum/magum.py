@@ -226,17 +226,17 @@ class Magum:
             factor = self.accScale / 2
 
             if acc_angle[0] >= 32768:
-                tarXvect.insert(i, int(acc_angle[0] - 65536))
+                tarXvect.insert(i, int(acc_angle[0] - 65536 + 16384 / factor))
             else:
                 tarXvect.insert(i, int(acc_angle[0]))
 
             if acc_angle[1] >= 32768:
-                tarYvect.insert(i, int(acc_angle[1] - 65536))
+                tarYvect.insert(i, int(acc_angle[1] - 65536 + 16384 / factor))
             else:
                 tarYvect.insert(i, int(acc_angle[1]))
 
             if acc_angle[2] >= 32768:
-                tarZvect.insert(i, int(acc_angle[2] - 65536))
+                tarZvect.insert(i, int(acc_angle[2] - 65536 + 16384 / factor))
             else:
                 tarZvect.insert(i, int(acc_angle[2]))
 
