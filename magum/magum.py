@@ -236,9 +236,9 @@ class Magum:
                 tarYvect.insert(i, int(acc_angle[1]))
 
             if acc_angle[2] >= 32768:
-                tarZvect.insert(i, int(acc_angle[2] - 65536 + 16384 / factor))
+                tarZvect.insert(i, int(acc_angle[2] - 65536))
             else:
-                tarZvect.insert(i, int(acc_angle[2] + 16384 / factor))
+                tarZvect.insert(i, int(acc_angle[2]))
 
             if rate_gyr[0] >= 32768:
                 gtarXvect.insert(i, int(rate_gyr[0] - 65536))
