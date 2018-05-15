@@ -422,10 +422,10 @@ class Magum:
 
     # complementary filter algorithm
     def compFilter(self, DT, axisOffset, uM=None):
-        exTime = 0.0022  # execution time
+        exTime = 0.18  # execution time
         if DT < exTime:
             print "Error: DT is too small to sample the accelerometer and gyroscope data.\nDT must be greater than " \
-                  "0.0022."
+                  "0.18."
             sys.exit(1)
         else:
             if self._calibrated == True:
