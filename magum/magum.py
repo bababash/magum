@@ -82,12 +82,12 @@ class Magum:
         self.accScale = scaleRange
 
         self._i2cBus.write_byte_data(I2C_AM_ADDRESS, A_CTRL_REG1,
-                                     0x21 | regNoise)  # set to active mode, frequency = 25 Hz (same as
+                                     0x00)  # set to active mode, frequency = 25 Hz (same as
         # accelerometer) in hybrid mode.
         time.sleep(.300)  # sleep 300 ms
 
         self._i2cBus.write_byte_data(I2C_AM_ADDRESS, M_CTRL_REG1,
-                                     0x03)  # enable both accelerometer and magnetometer sensors (hybrid mode)
+                                     0x00)  # enable both accelerometer and magnetometer sensors (hybrid mode)
 
     # gyroscope initialization
     def _initG(self, scaleRange=None, fsDouble=None):
@@ -123,7 +123,7 @@ class Magum:
 
         self.gyrScale = scaleRange
 
-        self._i2cBus.write_byte_data(I2C_G_ADDRESS, G_CTRL_REG1, 0x16)  # set to active mode 25Hz
+        self._i2cBus.write_byte_data(I2C_G_ADDRESS, G_CTRL_REG1, 0x00)  # set to active mode 25Hz
         time.sleep(.300)  # sleep 300ms
 
     def toStandby(self, sensor):
